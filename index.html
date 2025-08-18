@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Glowing Heart with LED Text</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      overflow: hidden;
+    }
+
+    /* Yulduzli fon */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent url("https://www.transparenttextures.com/patterns/stardust.png") repeat;
+      animation: moveStars 20s linear infinite;
+    }
+    @keyframes moveStars {
+      from { background-position: 0 0; }
+      to { background-position: 1000px 1000px; }
+    }
+
+    /* Yurak */
+    svg {
+      width: min(70vw, 350px);
+      height: auto;
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px red);
+      z-index: 1;
+    }
+
+    .heart-path {
+      stroke: url(#gradient);
+      stroke-dasharray: 1500;
+      stroke-dashoffset: 0;
+      animation: dash 4s linear infinite;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -1500; }
+    }
+
+    /* LED I love you 💗 matn yurak ichida */
+    .text {
+      position: absolute;
+      font-size: clamp(18px, 5vw, 40px);
+      font-weight: bold;
+      text-align: center;
+      opacity: 0;
+      animation: fadeText 3s infinite, glow 3s infinite;
+      z-index: 2;
+    }
+
+    /* paydo bo‘lish-yo‘qolish */
+    @keyframes fadeText {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(0.8); }
+    }
+
+    /* ranglarni LED lampochkaday o‘zgartirish */
+    @keyframes glow {
+      0%   { color: red;    text-shadow: 0 0 10px red, 0 0 30px red; }
+      25%  { color: yellow; text-shadow: 0 0 10px yellow, 0 0 30px yellow; }
+      50%  { color: lime;   text-shadow: 0 0 10px lime, 0 0 30px lime; }
+      75%  { color: cyan;   text-shadow: 0 0 10px cyan, 0 0 30px cyan; }
+      100% { color: magenta;text-shadow: 0 0 10px magenta, 0 0 30px magenta; }
+    }
+
+    /* Uchadigan kichkina yuraklar */
+    .flying-heart {
+      position: absolute;
+      transform: rotate(45deg);
+      animation: fly 4s linear forwards;
+    }
+    .flying-heart::before,
+    .flying-heart::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: inherit;
+    }
+    .flying-heart::before { top: -50%; left: 0; }
+    .flying-heart::after { left: -50%; top: 0; }
+
+    @keyframes fly {
+      from {
+        transform: translate(0, 0) rotate(45deg) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translate(var(--x), var(--y)) rotate(45deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <!-- Yurak + ichida matn -->
+  <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+    <svg viewBox="0 0 512 512">
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="red" />
+          <stop offset="25%" stop-color="yellow" />
+          <stop offset="50%" stop-color="lime" />
+          <stop offset="75%" stop-color="cyan" />
+          <stop offset="100%" stop-color="magenta" />
+        </linearGradient>
+      </defs>
+      <path class="heart-path" d="M256 464l-36.3-33.2C118 322.7 48 258.4 48 176 48 111 95 64 160 64c38 0 74 20 96 52 22-32 58-52 96-52 65 0 112 47 112 112 0 82.4-70 146.7-171.7 254.8L256 464z"/>
+    </svg>
+    <div class="text">I love you 💗</div>
+  </div>
+
+  <script>
+    const colors = ["red", "yellow", "lime", "cyan", "magenta", "orange", "blue", "violet"];
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("flying-heart");
+
+      const size = 10 + Math.random() * 20; 
+      heart.style.width = size + "px";
+      heart.style.height = size + "px";
+
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      heart.style.background = color;
+      heart.style.boxShadow = `0 0 8px ${color}, 0 0 15px ${color}`;
+
+      heart.style.left = Math.random() * window.innerWidth + "px";
+      heart.style.top = window.innerHeight + "px";
+
+      heart.style.setProperty("--x", (Math.random() * 100 - 50) + "px");
+      heart.style.setProperty("--y", (-window.innerHeight - 200) + "px");
+
+      const before = document.createElement("div");
+      const after = document.createElement("div");
+      before.style.width = size + "px";
+      before.style.height = size + "px";
+      after.style.width = size + "px";
+      after.style.height = size + "px";
+      [before, after].forEach(e => {
+        e.style.borderRadius = "50%";
+        e.style.background = color;
+        e.style.position = "absolute";
+      });
+      before.style.top = -size/2 + "px";
+      before.style.left = "0px";
+      after.style.left = -size/2 + "px";
+      after.style.top = "0px";
+
+      heart.appendChild(before);
+      heart.appendChild(after);
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 4000);
+    }
+
+    setInterval(createHeart, 200);
+  </script>
+</body>
+</html>
